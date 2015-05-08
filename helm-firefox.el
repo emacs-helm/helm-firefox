@@ -3,7 +3,8 @@
 ;; Copyright (C) 2012 ~ 2014 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; Version: 1.6.8
-;; Package-Requires: ((helm "1.5") (cl-lib "0.5") (emacs "24.1"))
+;; Package-Version: 20150307.121
+;; Package-Requires: ((helm "1.5") (cl-lib "0.5") (emacs "24.1") (dash "2.10") (s "1.9"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -44,7 +45,8 @@
   :type 'string)
 
 (defvar helm-firefox-bookmark-url-regexp "\\(https\\|http\\|ftp\\|about\\|file\\)://[^ \"]*")
-(defvar helm-firefox-bookmarks-regexp ">\\([^><]+.[^</a>]\\)")
+(defvar helm-firefox-bookmarks-regexp ">\\([^><]+.\\)</[aA]>")
+(defvar helm-firefox-separator " » ")
 
 (defun helm-get-firefox-user-init-dir ()
   "Guess the default Firefox user directory name."
@@ -58,6 +60,34 @@
               (kill-buffer)))))
     (file-name-as-directory (concat moz-dir moz-user-dir))))
 
+(defun helm-firefox-bookmarks-to-alist (file url-regexp bmk-regexp)
+  "Parse html bookmark FILE and return an alist with (title . url) as elements."
+  (let (bookmarks-alist url title stack prefix)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (goto-char (point-min))
+      (while (re-search-forward "href=\\|^ *<DT><A HREF=\\|<DT><H\\|</DL>" nil t)
+        (forward-line 0)
+        (setq xx (match-string 0))
+        (if  (string-equal (match-string 0) "<DT><H")
+            (when (re-search-forward "<H[1-6][^>]*>\\([^<]*\\)</H.>" (point-at-eol))
+              (message (match-string 0))
+              (push (match-string 1) stack))
+          (if  (string-equal (match-string 0) "</DL>")
+              (pop stack)
+            (progn
+              (when (re-search-forward url-regexp nil t)
+                (setq url (match-string 0)))
+              (when (re-search-forward bmk-regexp nil t)
+                (setq title (match-string 1)))
+              (push
+               (cons
+                (s-join helm-firefox-separator (reverse (cons title stack))) url)
+               bookmarks-alist))))
+        (forward-line)))
+    (nreverse bookmarks-alist)))
+
+
 (defun helm-guess-firefox-bookmark-file ()
   "Return the path of the Firefox bookmarks file."
   (concat (helm-get-firefox-user-init-dir) "bookmarks.html"))
@@ -67,7 +97,7 @@
   '((name . "Firefox Bookmarks")
     (init . (lambda ()
               (setq helm-firefox-bookmarks-alist
-                    (helm-html-bookmarks-to-alist
+                    (helm-firefox-bookmarks-to-alist
                      (helm-guess-firefox-bookmark-file)
                      helm-firefox-bookmark-url-regexp
                      helm-firefox-bookmarks-regexp))))
@@ -83,7 +113,7 @@
                ("Copy Url"
                 . (lambda (candidate)
                     (let ((url (helm-firefox-bookmarks-get-value
-                                candidate))) 
+                                candidate)))
                       (kill-new url)
                       (message "`%s' copied to kill-ring" url))))))))
 
@@ -92,9 +122,20 @@
 
 (defun helm-highlight-firefox-bookmarks (bookmarks _source)
   (cl-loop for i in bookmarks
-        collect (propertize
-                 i 'face '((:foreground "YellowGreen"))
-                 'help-echo (helm-firefox-bookmarks-get-value i))))
+           collect (let* ((elements (split-string i helm-firefox-separator))
+                          (path (-butlast elements))
+                          (prefix (if path
+                                      (concat (s-join helm-firefox-separator path)
+                                              helm-firefox-separator)
+                                    ""))
+                          (title (car (last elements))))
+                     (concat
+                      (propertize
+                       prefix 'face '((:foreground "DarkGray"))
+                       'help-echo (helm-firefox-bookmarks-get-value i))
+                      (propertize
+                       title 'face '((:foreground "YellowGreen"))
+                       'help-echo (helm-firefox-bookmarks-get-value i))))))
 
 ;;;###autoload
 (defun helm-firefox-bookmarks ()
