@@ -47,6 +47,7 @@
 
 (defvar helm-firefox-bookmark-url-regexp "\\(https\\|http\\|ftp\\|about\\|file\\)://[^ \"]*")
 (defvar helm-firefox-bookmarks-regexp ">\\([^><]+.\\)</[aA]>")
+(defvar helm-firefox-bookmarks-subdirectory-regex "<H[1-6][^>]*>\\([^<]*\\)</H.>")
 (defvar helm-firefox-separator " » ")
 
 (defun helm-get-firefox-user-init-dir ()
@@ -63,15 +64,19 @@
 
 (defun helm-firefox-bookmarks-to-alist (file url-regexp bmk-regexp)
   "Parse html bookmark FILE and return an alist with (title . url) as elements."
-  (let (bookmarks-alist url title stack prefix)
+  (let (bookmarks-alist url title stack)
     (with-temp-buffer
       (insert-file-contents file)
       (goto-char (point-min))
+      ;; <DT><H - matches on bookmark folders (<H3>...</H3>)
+      ;; </DL>  - matches end of bookmark folder
       (while (re-search-forward "href=\\|^ *<DT><A HREF=\\|<DT><H\\|</DL>" nil t)
         (forward-line 0)
         (cond ((string-equal (match-string 0) "<DT><H")
-               (re-search-forward "<H[1-6][^>]*>\\([^<]*\\)</H.>" (point-at-eol))
-               (push (match-string 1) stack))
+               ;; Extract bookmark folders name
+               (if (re-search-forward helm-firefox-bookmarks-subdirectory-regex
+                                      (point-at-eol))
+                   (push (match-string 1) stack)))
               ((string-equal (match-string 0) "</DL>")
                (pop stack))
               (t
