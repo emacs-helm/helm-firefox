@@ -68,16 +68,16 @@
     (with-temp-buffer
       (insert-file-contents file)
       (goto-char (point-min))
-      ;; <DT><H - matches on bookmark folders (<H3>...</H3>)
-      ;; </DL>  - matches end of bookmark folder
       (while (re-search-forward "href=\\|^ *<DT><A HREF=\\|<DT><H\\|</DL>" nil t)
         (forward-line 0)
-        (cond ((string-equal (match-string 0) "<DT><H")
+        (cond (;; Matches on bookmark folders (<H3>...</H3>).
+               (string-equal (match-string 0) "<DT><H")
                ;; Extract bookmark folders name
                (if (re-search-forward helm-firefox-bookmarks-subdirectory-regex
                                       (point-at-eol))
                    (push (match-string 1) stack)))
-              ((string-equal (match-string 0) "</DL>")
+              (;; Matches end of bookmark folder.
+               (string-equal (match-string 0) "</DL>")
                (pop stack))
               (t
                (when (re-search-forward url-regexp nil t)
