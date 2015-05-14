@@ -73,8 +73,9 @@
         (cond (;; Matches on bookmark folders (<H3>...</H3>).
                (string-equal (match-string 0) "<DT><H")
                ;; Extract bookmark folders name
-               (if (re-search-forward helm-firefox-bookmarks-subdirectory-regex
-                                      (point-at-eol))
+               (if (re-search-forward
+                    helm-firefox-bookmarks-subdirectory-regex
+                    (point-at-eol) t)
                    (push (match-string 1) stack)))
               (;; Matches end of bookmark folder.
                (string-equal (match-string 0) "</DL>")
@@ -89,7 +90,8 @@
                  ;; "Dir >> Dir >> Title"
                  (mapconcat 'identity
                             (reverse (cons title stack))
-                            helm-firefox-separator) url)
+                            helm-firefox-separator)
+                 url)
                 bookmarks-alist)))
         (forward-line)))
     (nreverse bookmarks-alist)))
