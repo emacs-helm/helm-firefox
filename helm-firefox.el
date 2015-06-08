@@ -4,6 +4,7 @@
 
 ;; Version: 1.6.8
 ;; Package-Requires: ((helm "1.5") (cl-lib "0.5") (emacs "24.1"))
+;; URL: https://github.com/emacs-helm/helm-firefox
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -40,8 +41,9 @@
   "Helm libraries and applications for Firefox navigator."
   :group 'helm)
 
-(defcustom helm-firefox-default-directory "/.mozilla/firefox/"
-  "The root directory containing firefox config."
+(defcustom helm-firefox-default-directory "~/.mozilla/firefox/"
+  "The root directory containing firefox config.
+On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
   :group 'helm-firefox
   :type 'string)
 
@@ -52,9 +54,9 @@
 
 (defun helm-get-firefox-user-init-dir ()
   "Guess the default Firefox user directory name."
-  (let* ((moz-dir (concat (getenv "HOME") helm-firefox-default-directory))
+  (let* ((moz-dir helm-firefox-default-directory)
          (moz-user-dir
-          (with-current-buffer (find-file-noselect (concat moz-dir "profiles.ini"))
+          (with-current-buffer (find-file-noselect (expand-file-name "profiles.ini" moz-dir))
             (goto-char (point-min))
             (prog1
                 (when (search-forward "Path=" nil t)
@@ -99,7 +101,7 @@
 
 (defun helm-guess-firefox-bookmark-file ()
   "Return the path of the Firefox bookmarks file."
-  (concat (helm-get-firefox-user-init-dir) "bookmarks.html"))
+  (expand-file-name "bookmarks.html" (helm-get-firefox-user-init-dir)))
 
 (defvar helm-firefox-bookmarks-alist nil)
 (defvar helm-source-firefox-bookmarks
