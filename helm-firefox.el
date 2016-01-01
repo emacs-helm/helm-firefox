@@ -47,7 +47,7 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
   :group 'helm-firefox
   :type 'string)
 
-(defcustom helm-firefox-show-structure t
+(defcustom helm-firefox-show-structure nil
   "Show the directory structure of bookmark when non-nil."
   :group 'helm-firefox
   :type 'boolean)
@@ -111,33 +111,43 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
 
 (defvar helm-firefox-bookmarks-alist nil)
 (defvar helm-source-firefox-bookmarks
-  '((name . "Firefox Bookmarks")
-    (init . (lambda ()
+  (helm-build-sync-source "Firefox Bookmarks"
+    :init (lambda ()
+            (let ((parser (if helm-firefox-show-structure
+                              #'helm-firefox-bookmarks-to-alist
+                              #'helm-html-bookmarks-to-alist)))
               (setq helm-firefox-bookmarks-alist
-                    (helm-firefox-bookmarks-to-alist
-                     (helm-guess-firefox-bookmark-file)
-                     helm-firefox-bookmark-url-regexp
-                     helm-firefox-bookmarks-regexp))))
-    (candidates . (lambda ()
-                    (mapcar #'car helm-firefox-bookmarks-alist)))
-    (filtered-candidate-transformer
-     helm-adaptive-sort
-     helm-highlight-firefox-bookmarks)
-    (action . (("Browse Url"
-                . (lambda (candidate)
-                    (helm-browse-url
-                     (helm-firefox-bookmarks-get-value candidate))))
-               ("Copy Url"
-                . (lambda (candidate)
-                    (let ((url (helm-firefox-bookmarks-get-value
-                                candidate)))
-                      (kill-new url)
-                      (message "`%s' copied to kill-ring" url))))))))
+                    (funcall parser
+                             (helm-guess-firefox-bookmark-file)
+                             helm-firefox-bookmark-url-regexp
+                             helm-firefox-bookmarks-regexp))))
+    :candidates (lambda ()
+                  (mapcar #'car helm-firefox-bookmarks-alist))
+    :filtered-candidate-transformer
+     '(helm-adaptive-sort
+       helm-firefox-highlight-bookmarks)
+    :action (helm-make-actions
+             "Browse Url"
+             (lambda (candidate)
+               (helm-browse-url
+                (helm-firefox-bookmarks-get-value candidate)))
+             "Copy Url"
+             (lambda (candidate)
+               (let ((url (helm-firefox-bookmarks-get-value
+                           candidate))) 
+                 (kill-new url)
+                 (message "`%s' copied to kill-ring" url))))))
 
 (defun helm-firefox-bookmarks-get-value (elm)
   (assoc-default elm helm-firefox-bookmarks-alist))
 
-(defun helm-highlight-firefox-bookmarks (bookmarks _source)
+(defun helm-firefox-highlight-bookmarks-1 (bookmarks)
+  (cl-loop for i in bookmarks
+        collect (propertize
+                 i 'face '((:foreground "YellowGreen"))
+                 'help-echo (helm-firefox-bookmarks-get-value i))))
+
+(defun helm-firefox-highlight-bookmarks-2 (bookmarks)
   (cl-loop for i in bookmarks
            for elements = (split-string i helm-firefox-separator)
            for path = (butlast elements)
@@ -153,8 +163,12 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
                      'help-echo (helm-firefox-bookmarks-get-value i))
                     (propertize
                      title 'face '((:foreground "YellowGreen"))
-                     'help-echo (helm-firefox-bookmarks-get-value i)))
-                     ))
+                     'help-echo (helm-firefox-bookmarks-get-value i)))))
+
+(defun helm-firefox-highlight-bookmarks (bookmarks _source)
+  (if helm-firefox-show-structure
+      (helm-firefox-highlight-bookmarks-2 bookmarks)
+      (helm-firefox-highlight-bookmarks-1 bookmarks)))
 
 ;;;###autoload
 (defun helm-firefox-bookmarks ()
