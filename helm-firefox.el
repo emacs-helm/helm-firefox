@@ -186,8 +186,8 @@ user_pref(\"browser.bookmarks.autoExportHTML\", true);
 After closing firefox, you will be able to browse you bookmarks.
 "
   (interactive)
-  (helm-other-buffer 'helm-source-firefox-bookmarks
-                     "*Helm Firefox*"))
+  (helm :sources 'helm-source-firefox-bookmarks
+        :buffer "*Helm Firefox*"))
 
 
 (provide 'helm-firefox)
