@@ -47,6 +47,11 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
   :group 'helm-firefox
   :type 'string)
 
+(defcustom helm-firefox-show-structure t
+  "Show the directory structure of bookmark when non-nil."
+  :group 'helm-firefox
+  :type 'boolean)
+
 (defvar helm-firefox-bookmark-url-regexp "\\(https\\|http\\|ftp\\|about\\|file\\)://[^ \"]*")
 (defvar helm-firefox-bookmarks-regexp ">\\([^><]+.\\)</[aA]>")
 (defvar helm-firefox-bookmarks-subdirectory-regex "<H[1-6][^>]*>\\([^<]*\\)</H.>")
@@ -90,14 +95,15 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
                (push
                 (cons
                  ;; "Dir >> Dir >> Title"
-                 (mapconcat 'identity
-                            (reverse (cons title stack))
-                            helm-firefox-separator)
+                 (if helm-firefox-show-structure
+                     (mapconcat 'identity
+                                (reverse (cons title stack))
+                                helm-firefox-separator)
+                     title)
                  url)
                 bookmarks-alist)))
         (forward-line)))
     (nreverse bookmarks-alist)))
-
 
 (defun helm-guess-firefox-bookmark-file ()
   "Return the path of the Firefox bookmarks file."
