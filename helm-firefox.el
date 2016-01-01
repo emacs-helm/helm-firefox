@@ -61,7 +61,8 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
   "Guess the default Firefox user directory name."
   (let* ((moz-dir helm-firefox-default-directory)
          (moz-user-dir
-          (with-current-buffer (find-file-noselect (expand-file-name "profiles.ini" moz-dir))
+          (with-current-buffer (find-file-noselect
+                                (expand-file-name "profiles.ini" moz-dir))
             (goto-char (point-min))
             (prog1
                 (when (search-forward "Path=" nil t)
@@ -174,7 +175,7 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
 (defun helm-firefox-bookmarks ()
   "Preconfigured `helm' for firefox bookmark.
 You will have to enable html bookmarks in firefox:
-open about:config in firefox and double click on this line to enable value \
+open \"about:config\" in firefox and double click on this line to enable value
 to true:
 
 user_pref(\"browser.bookmarks.autoExportHTML\", false);
@@ -183,8 +184,7 @@ You should have now:
 
 user_pref(\"browser.bookmarks.autoExportHTML\", true);
 
-After closing firefox, you will be able to browse you bookmarks.
-"
+After closing firefox, you will be able to browse you bookmarks."
   (interactive)
   (helm :sources 'helm-source-firefox-bookmarks
         :buffer "*Helm Firefox*"))
