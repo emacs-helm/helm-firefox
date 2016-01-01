@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
-;; Version: 1.6.8
+;; Version: 1.1
 ;; Package-Requires: ((helm "1.5") (cl-lib "0.5") (emacs "24.1"))
 ;; URL: https://github.com/emacs-helm/helm-firefox
 
@@ -26,7 +26,7 @@
 (require 'helm-adaptive)
 (require 'helm-net)
 
-;;
+;;; Commentary:
 ;; You will have to set firefox to import bookmarks in his html file bookmarks.html.
 ;; (only for firefox versions >=3)
 ;; To achieve that, open about:config in firefox and double click on this line to enable value
