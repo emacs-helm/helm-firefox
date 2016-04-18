@@ -184,9 +184,14 @@ You should have now:
 
 user_pref(\"browser.bookmarks.autoExportHTML\", true);
 
-After closing firefox, you will be able to browse you bookmarks."
+After closing firefox, you will be able to browse your bookmarks."
   (interactive)
-  (helm :sources 'helm-source-firefox-bookmarks
+  (helm :sources `(helm-source-firefox-bookmarks
+                   ,(helm-build-dummy-source "DuckDuckgo"
+                     :action (lambda (candidate)
+                               (helm-browse-url 
+                                (format helm-surfraw-duckduckgo-url
+                                        (url-hexify-string candidate))))))
         :buffer "*Helm Firefox*"))
 
 
