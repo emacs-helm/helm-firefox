@@ -92,7 +92,7 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
                (when (re-search-forward url-regexp nil t)
                  (setq url (match-string 0)))
                (when (re-search-forward bmk-regexp nil t)
-                 (setq title (match-string 1)))
+                 (setq title (helm-html-decode-entities-string (match-string 1))))
                (push
                 (cons
                  ;; "Dir >> Dir >> Title"
