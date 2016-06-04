@@ -50,3 +50,11 @@ setup `helm-firefox-default-directory` to some other value.
 
 Of course as the script use emacsclient you need an emacs session with a server running 
 along with firefox to make this working.
+
+Also to come back to firefox when you select a bookmark or abort with C-g this script is using
+wmctrl program, so you should install it.
+By default the script is assuming the firefox executable is "firefox", to modify this you can add
+to your env vars in .profile or .bashrc:
+
+    export FIREFOXEXE="name of your firefox executable"
+
