@@ -1,3 +1,8 @@
+[![MELPA](http://melpa.org/packages/helm-firefox-badge.svg)](http://melpa.org/#/helm-firefox)
+[![MELPA Stable](https://stable.melpa.org/packages/helm-firefox-badge.svg)](https://stable.melpa.org/#/helm-firefox)
+
+<p>You can <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=thierry.volpiatto@gmail.com&amp;lc=US&amp;currency_code=EUR&amp;bn=PP-DonationsBF:btn_donateCC_LG.gif:NonHosted"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" alt="Donate" title="" /></a> to help this project.</p>
+
 # helm-firefox
 
 ## Dependencies
