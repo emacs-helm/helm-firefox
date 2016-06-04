@@ -46,7 +46,7 @@ setup `helm-firefox-default-directory` to some other value.
 
 3) Install [firefox-protocol](https://github.com/thierryvolpiatto/firefox-protocol)
 
-   M-x firefox-protocol-installer-install RET ffbookmarks RET ffbookmarks
+   M-x `firefox-protocol-installer-install` RET `ffbookmarks` RET `/path/to/ffbookmarks`
 
 Of course as the script use emacsclient you need an emacs session with a server running 
 along with firefox to make this working.
