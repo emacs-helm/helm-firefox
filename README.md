@@ -42,9 +42,10 @@ setup `helm-firefox-default-directory` to some other value.
    - Add a bookmark named `ffbookmarks` in your personal bar in firefox.
    - Right click on it and add `javascript:location.href='ffbookmarks://localhost'` as url.
    
-2) Add the ffbookmarks script in a directory of your `PATH`:
+2) Add the `ffbookmarks` script in a directory of your `PATH`.
 
 3) Install [firefox-protocol](https://github.com/thierryvolpiatto/firefox-protocol)
+
    M-x firefox-protocol-installer-install RET ffbookmarks RET ffbookmarks
 
 Of course as the script use emacsclient you need an emacs session with a server running 
