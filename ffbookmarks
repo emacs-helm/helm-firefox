@@ -1,0 +1,12 @@
+#!/bin/bash
+## Description: Call helm-firefox-bookmarks from firefox or anywhere else.
+## Author:Thierry Volpiatto<thierry dot volpiatto FROM gmail DOT com>
+## Commentary: Use firefox-protocol-installer-install to install protocol
+## +from emacs.(See bookmark-extensions package)
+# Use this bookmarklet:
+# javascript:location.href='ffbookmarks://localhost'
+
+wmctrl -a emacs
+emacsclient -e "(progn (helm-firefox-bookmarks) nil)" > /dev/null
+wmctrl -xa $FIREFOXEXE
+exit 0
