@@ -19,14 +19,8 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Code:
-(require 'cl-lib)
-(require 'helm)
-(require 'helm-utils)
-(require 'helm-adaptive)
-(require 'helm-net)
-
 ;;; Commentary:
+;;
 ;; You will have to set firefox to import bookmarks in his html file bookmarks.html.
 ;; (only for firefox versions >=3)
 ;; To achieve that, open about:config in firefox and double click on this line to enable value
@@ -35,6 +29,13 @@
 ;; You should have now:
 ;; user_pref("browser.bookmarks.autoExportHTML", true);
 ;; NOTE: This is also working in the same way for mozilla aka seamonkey.
+
+;;; Code:
+(require 'cl-lib)
+(require 'helm)
+(require 'helm-utils)
+(require 'helm-adaptive)
+(require 'helm-net)
 
 
 (defgroup helm-firefox nil
@@ -56,6 +57,12 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
 (defvar helm-firefox-bookmarks-regexp ">\\([^><]+.\\)</[aA]>")
 (defvar helm-firefox-bookmarks-subdirectory-regex "<H[1-6][^>]*>\\([^<]*\\)</H.>")
 (defvar helm-firefox-separator " » ")
+
+
+(defface helm-firefox-title
+    '((t (:inherit 'font-lock-type-face)))
+  "Face used for firefox bookmark titles."
+  :group 'helm-firefox)
 
 (defun helm-get-firefox-user-init-dir ()
   "Guess the default Firefox user directory name."
@@ -123,30 +130,33 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
                              helm-firefox-bookmark-url-regexp
                              helm-firefox-bookmarks-regexp))))
     :candidates (lambda ()
-                  (mapcar #'car helm-firefox-bookmarks-alist))
+                  (cl-loop for (bmk . url) in helm-firefox-bookmarks-alist
+                           collect (concat bmk "\n" url)))
+    :multiline t
     :filtered-candidate-transformer
      '(helm-adaptive-sort
        helm-firefox-highlight-bookmarks)
     :action (helm-make-actions
              "Browse Url"
              (lambda (candidate)
-               (helm-browse-url
-                (helm-firefox-bookmarks-get-value candidate)))
+               (helm-browse-url candidate))
              "Copy Url"
-             (lambda (candidate)
-               (let ((url (helm-firefox-bookmarks-get-value
-                           candidate))) 
-                 (kill-new url)
-                 (message "`%s' copied to kill-ring" url))))))
+             (lambda (url)
+               (kill-new url)
+               (message "`%s' copied to kill-ring" url)))))
 
 (defun helm-firefox-bookmarks-get-value (elm)
   (assoc-default elm helm-firefox-bookmarks-alist))
 
 (defun helm-firefox-highlight-bookmarks-1 (bookmarks)
-  (cl-loop for i in bookmarks
-        collect (propertize
-                 i 'face '((:foreground "YellowGreen"))
-                 'help-echo (helm-firefox-bookmarks-get-value i))))
+  (cl-loop for bmk in bookmarks
+           for split = (split-string bmk "\n")
+           collect (cons (concat (propertize
+                                  (car split)
+                                  'face 'helm-firefox-title)
+                                 "\n"
+                                 (cadr split))
+                         (cadr split))))
 
 (defun helm-firefox-highlight-bookmarks-2 (bookmarks)
   (cl-loop for i in bookmarks
