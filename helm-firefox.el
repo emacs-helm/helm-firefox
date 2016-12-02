@@ -122,6 +122,7 @@ After closing firefox, you will be able to browse your bookmarks."
                                (helm-browse-url 
                                 (format helm-surfraw-duckduckgo-url
                                         (url-hexify-string candidate))))))
+        :truncate-lines t
         :buffer "*Helm Firefox*"))
 
 
