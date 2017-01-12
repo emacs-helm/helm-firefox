@@ -5,6 +5,8 @@
 
 # helm-firefox
 
+Emacs helm interface for firefox bookmarks.
+
 ## Dependencies
 
 You have first to install [helm](https://github.com/emacs-helm/helm) in order to make this working.
