@@ -59,9 +59,23 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
               (kill-buffer)))))
     (file-name-as-directory (concat moz-dir moz-user-dir))))
 
+(defcustom helm-firefox-bookmark-user-directory
+  (helm-get-firefox-user-init-dir)
+  "The Firefox user directory.
+
+Should be located in `helm-firefox-default-directory', you may have
+several different directories there if you use different firefox
+versions, if the default found by helm-firefox is not the one you want
+to use, look at your \"profiles.ini\" file which profile you are
+currently using, Firefox use by default the one of the recentest
+Firefox installation, it is adviced to use Firefox sync instead of
+changing this default value."
+  :type 'string
+  :group 'helm-firefox)
+
 (defun helm-guess-firefox-bookmark-file ()
   "Return the path of the Firefox bookmarks file."
-  (expand-file-name "bookmarks.html" (helm-get-firefox-user-init-dir)))
+  (expand-file-name "bookmarks.html" helm-firefox-bookmark-user-directory))
 
 (defvar helm-firefox-bookmarks-alist nil)
 (defvar helm-source-firefox-bookmarks
