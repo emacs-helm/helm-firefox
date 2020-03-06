@@ -48,16 +48,29 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
 
 (defun helm-get-firefox-user-init-dir ()
   "Guess the default Firefox user directory name."
-  (let* ((moz-dir helm-firefox-default-directory)
-         (moz-user-dir
-          (with-current-buffer (find-file-noselect
-                                (expand-file-name "profiles.ini" moz-dir))
-            (goto-char (point-min))
-            (prog1
-                (when (search-forward "Path=" nil t)
-                  (buffer-substring-no-properties (point) (point-at-eol)))
-              (kill-buffer)))))
-    (file-name-as-directory (concat moz-dir moz-user-dir))))
+  (with-temp-buffer
+    (insert-file-contents
+     (expand-file-name "profiles.ini" helm-firefox-default-directory))
+    (goto-char (point-min))
+    (prog1
+        (cl-loop with dir
+                 with atime = 0
+                 while (re-search-forward "Path=" nil t)
+                 for tmpdir = (expand-file-name
+                               (buffer-substring-no-properties
+                                (point) (point-at-eol))
+                               helm-firefox-default-directory)
+                 for bmkfile = (expand-file-name "bookmarks.html" tmpdir)
+                 for at = (if (file-exists-p bmkfile)
+                              (float-time (nth 5 (file-attributes bmkfile)))
+                            (max atime 0))
+                 when (> at atime)
+                 do (setq dir tmpdir
+                          atime at)
+                 finally return (file-name-as-directory
+                                 (expand-file-name
+                                  dir helm-firefox-default-directory)))
+      (kill-buffer))))
 
 (defcustom helm-firefox-bookmark-user-directory
   (helm-get-firefox-user-init-dir)
