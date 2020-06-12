@@ -108,8 +108,10 @@ changing this default value."
        helm-firefox-highlight-bookmarks)
     :action (helm-make-actions
              "Browse Url"
-             (lambda (candidate)
-               (helm-browse-url candidate))
+             (lambda (_candidate)
+               (let ((urls (helm-marked-candidates)))
+                 (cl-loop for cand in urls
+                          do (helm-browse-url cand))))
              "Copy Url"
              (lambda (url)
                (kill-new url)
