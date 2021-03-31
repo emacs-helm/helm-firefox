@@ -32,12 +32,6 @@
   "Helm libraries and applications for Firefox navigator."
   :group 'helm)
 
-(defcustom helm-firefox-default-directory "~/.mozilla/firefox/"
-  "The root directory containing firefox config.
-On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
-  :group 'helm-firefox
-  :type 'string)
-
 (defvar helm-firefox-bookmark-url-regexp "\\(https\\|http\\|ftp\\|about\\|file\\)://[^ \"]*")
 (defvar helm-firefox-bookmarks-regexp ">\\([^><]+.\\)</[aA]>")
 
@@ -46,11 +40,11 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
   "Face used for firefox bookmark titles."
   :group 'helm-firefox)
 
-(defun helm-get-firefox-user-init-dir ()
+(defun helm-get-firefox-user-init-dir (directory)
   "Guess the default Firefox user directory name."
   (with-temp-buffer
     (insert-file-contents
-     (expand-file-name "profiles.ini" helm-firefox-default-directory))
+     (expand-file-name "profiles.ini" directory))
     (goto-char (point-min))
     (prog1
         (cl-loop with dir
@@ -59,7 +53,7 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
                  for tmpdir = (expand-file-name
                                (buffer-substring-no-properties
                                 (point) (point-at-eol))
-                               helm-firefox-default-directory)
+                               directory)
                  for bmkfile = (expand-file-name "bookmarks.html" tmpdir)
                  for at = (if (file-exists-p bmkfile)
                               (float-time (nth 5 (file-attributes bmkfile)))
@@ -69,12 +63,14 @@ On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\"."
                           atime at)
                  finally return (file-name-as-directory
                                  (expand-file-name
-                                  dir helm-firefox-default-directory)))
+                                  dir directory)))
       (kill-buffer))))
 
-(defcustom helm-firefox-bookmark-user-directory
-  (helm-get-firefox-user-init-dir)
+(defvar helm-firefox-bookmark-user-directory nil
   "The Firefox user directory.
+
+This variable is set automatically by helm-firefox, you should not
+have to modify it yourself.
 
 Should be located in `helm-firefox-default-directory', you may have
 several different directories there if you use different firefox
@@ -82,9 +78,19 @@ versions, if the default found by helm-firefox is not the one you want
 to use, look at your \"profiles.ini\" file which profile you are
 currently using, Firefox use by default the one of the recentest
 Firefox installation, it is adviced to use Firefox sync instead of
-changing this default value."
+changing this default value.")
+
+(defcustom helm-firefox-default-directory "~/.mozilla/firefox/"
+  "The root directory containing firefox config.
+On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\".
+
+DO NOT use `setq' to configure this variable."
+  :group 'helm-firefox
   :type 'string
-  :group 'helm-firefox)
+  :set (lambda (var val)
+         (set var val)
+         (setq helm-firefox-bookmark-user-directory
+               (helm-get-firefox-user-init-dir val))))
 
 (defun helm-guess-firefox-bookmark-file ()
   "Return the path of the Firefox bookmarks file."
