@@ -34,6 +34,7 @@
 
 (defvar helm-firefox-bookmark-url-regexp "\\(https\\|http\\|ftp\\|about\\|file\\)://[^ \"]*")
 (defvar helm-firefox-bookmarks-regexp ">\\([^><]+.\\)</[aA]>")
+(defvar helm-firefox-history nil)
 
 (defface helm-firefox-title
     '((t (:inherit 'font-lock-type-face)))
@@ -158,7 +159,8 @@ After closing firefox, you will be able to browse your bookmarks."
                                 (format helm-surfraw-duckduckgo-url
                                         (url-hexify-string candidate))))))
         :truncate-lines t
-        :buffer "*Helm Firefox*"))
+        :buffer "*Helm Firefox*"
+        :history 'helm-firefox-history))
 
 
 (provide 'helm-firefox)
