@@ -122,7 +122,8 @@ DO NOT use `setq' to configure this variable."
              "Copy Url"
              (lambda (url)
                (kill-new url)
-               (message "`%s' copied to kill-ring" url)))))
+               (message "`%s' copied to kill-ring" url)))
+    :migemo t))
 
 (defun helm-firefox-bookmarks-get-value (elm)
   (assoc-default elm helm-firefox-bookmarks-alist))
@@ -155,7 +156,7 @@ After closing firefox, you will be able to browse your bookmarks."
   (helm :sources `(helm-source-firefox-bookmarks
                    ,(helm-build-dummy-source "DuckDuckgo"
                      :action (lambda (candidate)
-                               (helm-browse-url 
+                               (helm-browse-url
                                 (format helm-surfraw-duckduckgo-url
                                         (url-hexify-string candidate))))))
         :truncate-lines t
