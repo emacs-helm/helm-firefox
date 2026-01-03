@@ -37,25 +37,4 @@ Otherwise put this file in `load-path` compile it and add in your init file:
 On GNU Linux probably you can keep default setting, otherwise you may have to
 setup `helm-firefox-default-directory` to some other value.
 
-## Create a bookmarklet to jump to helm-firefox from firefox (facultative)
-
-1) Create the bookmarklet in firefox:
-   - Add a bookmark named `ffbookmarks` in your personal bar in firefox.
-   - Right click on it and add `javascript:location.href='ffbookmarks://localhost'` as url.
-   
-2) Add the `ffbookmarks` script in a directory of your `PATH`.
-
-3) Install [firefox-protocol](https://github.com/thierryvolpiatto/firefox-protocol)
-
-   M-x `firefox-protocol-installer-install` RET `ffbookmarks` RET `/path/to/ffbookmarks`
-
-Of course as the script use emacsclient you need an emacs session with a server running 
-along with firefox to make this working.
-
-Also to come back to firefox when you select a bookmark or abort with C-g this script is using
-wmctrl program, so you should install it.
-By default the script is assuming the firefox executable is "firefox", to modify this you can add
-to your env vars in .profile or .bashrc:
-
-    export FIREFOXEXE="name of your firefox executable"
 
