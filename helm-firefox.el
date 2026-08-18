@@ -1,6 +1,6 @@
 ;;; helm-firefox.el --- Firefox bookmarks -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2026 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; Version: 1.1
 ;; Package-Requires: ((helm "1.5") (cl-lib "0.5") (emacs "24.1"))
@@ -47,25 +47,25 @@
     (insert-file-contents
      (expand-file-name "profiles.ini" directory))
     (goto-char (point-min))
-    (prog1
-        (cl-loop with dir
-                 with atime = 0
-                 while (re-search-forward "Path=" nil t)
-                 for tmpdir = (expand-file-name
-                               (buffer-substring-no-properties
-                                (point) (point-at-eol))
-                               directory)
-                 for bmkfile = (expand-file-name "bookmarks.html" tmpdir)
-                 for at = (if (file-exists-p bmkfile)
-                              (float-time (nth 5 (file-attributes bmkfile)))
-                            (max atime 0))
-                 when (> at atime)
-                 do (setq dir tmpdir
-                          atime at)
-                 finally return (file-name-as-directory
+    (cl-loop with dir
+             with atime = 0
+             while (re-search-forward "Path=" nil t)
+             for tmpdir = (expand-file-name
+                           (buffer-substring-no-properties
+                            (point) (point-at-eol))
+                           directory)
+             for bmkfile = (expand-file-name "bookmarks.html" tmpdir)
+             for at = (if (file-exists-p bmkfile)
+                          (float-time (nth 5 (file-attributes bmkfile)))
+                        (max atime 0))
+             when (> at atime)
+             do (setq dir tmpdir
+                      atime at)
+             finally return (if dir
+                                (file-name-as-directory
                                  (expand-file-name
-                                  dir directory)))
-      (kill-buffer))))
+                                  dir directory))
+                              (error "Couldn't find firefox default directory")))))
 
 (defvar helm-firefox-bookmark-user-directory nil
   "The Firefox user directory.
@@ -89,9 +89,10 @@ DO NOT use `setq' to configure this variable."
   :group 'helm-firefox
   :type 'string
   :set (lambda (var val)
-         (set var val)
-         (setq helm-firefox-bookmark-user-directory
-               (helm-get-firefox-user-init-dir val))))
+         (when (file-directory-p val)
+           (set var val)
+           (setq helm-firefox-bookmark-user-directory
+                 (helm-get-firefox-user-init-dir val)))))
 
 (defun helm-guess-firefox-bookmark-file ()
   "Return the path of the Firefox bookmarks file."
