@@ -81,7 +81,8 @@ currently using, Firefox use by default the one of the recentest
 Firefox installation, it is adviced to use Firefox sync instead of
 changing this default value.")
 
-(defcustom helm-firefox-default-directory "~/.mozilla/firefox/"
+(defcustom helm-firefox-default-directory
+  (expand-file-name "mozilla/firefox" (xdg-config-home))
   "The root directory containing firefox config.
 On Mac OS X, probably set to \"~/Library/Application Support/Firefox/\".
 
