@@ -37,7 +37,7 @@
 (defvar helm-firefox-history nil)
 
 (defface helm-firefox-title
-    '((t (:inherit 'font-lock-type-face)))
+    '((t (:inherit font-lock-type-face)))
   "Face used for firefox bookmark titles."
   :group 'helm-firefox)
 
